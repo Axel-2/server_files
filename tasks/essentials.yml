@@ -1,0 +1,78 @@
+#- name: Create user
+#  user:
+#    name: oukerie
+#    password: $6$Ximena1023Hi$zEiaR/zzpTg1Oc3vKkjMxrAVWTc8.mikTQ8DDRqpVdnL.gmOuWU6xkXSNMZgrlaYV3JMiU4H41.9V5XhJlzgQ.
+#    state: present
+#    shell: /bin/bash
+#    createhome: yes
+
+
+#- name: Add SSH key to authorized_keys file
+#  authorized_key:
+#    user: oukerie
+#    key: https://github.com/axel-2.keys
+#    state: present
+#    exclusive: true
+
+- name: Create sshusers group
+  group:
+    name: sshusers
+    state: present
+
+- name: Add user accounts to sshusers group
+  user:
+    name: oukerie
+    groups: sshusers
+    append: yes
+
+
+- name: Restart SSH service
+  service:
+    name: ssh
+    state: restarted
+
+
+- name: Create sudousers group
+  group:
+    name: sudousers
+    state: present
+
+- name: Add user accounts to sudousers group
+  user:
+    name: oukerie
+    groups: sudousers
+    append: yes
+
+# A VERIFIER
+- name: Edit sudoers file
+  lineinfile:
+    path: /etc/sudoers
+    line: "%sudousers   ALL=(ALL:ALL) ALL"
+
+- name: Create suusers group
+  group:
+    name: suusers
+    state: present
+
+- name: Add user accounts to suusers group
+  user:
+    name: oukerie
+    groups: suusers
+    append: yes
+   
+
+- name: Add hidepid option to /proc mount in /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    line: "proc     /proc     proc     defaults,hidepid=2     0     0"
+    state: present
+
+
+- name: Install software-properties-common package
+  apt:
+    name: 
+      - software-properties-common
+#
+#      
+#    state: present
+

@@ -1,0 +1,28 @@
+- name: Run Pi-hole with Docker Compose
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Disable systemd-resolved DNSStubListener
+      lineinfile:
+        path: /etc/systemd/resolved.conf
+        regex: '^#?DNSStubListener=yes'
+        line: 'DNSStubListener=no'
+        backup: yes
+
+    - name: Update /etc/resolv.conf symlink
+      shell: >
+        rm /etc/resolv.conf &&
+        ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+
+    - name: Restart systemd-resolved
+      command: systemctl restart systemd-resolved
+
+    - name: Launch Docker Compose for Pi-hole
+      command: docker-compose up -d
+      args:
+        chdir: /home/oukerie/homeserver/pi-hole/
+
+
+

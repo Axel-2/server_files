@@ -1,0 +1,24 @@
+- name: Third 
+  hosts: second
+  remote_user: root
+  become: no
+
+  tasks:
+
+    - name: Changer la propriété du dossier
+      become: true
+      file:
+        path: /home/oukerie/data
+        owner: oukerie
+        group: oukerie
+        recurse: yes
+    - name: Backup data directory
+      synchronize:
+        src: /home/oukerie/data
+        dest: /Users/axel/Documents/ansibletest/backup/data
+        delete: true
+        recursive: true
+        mode: pull
+
+
+    

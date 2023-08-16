@@ -1,0 +1,45 @@
+log:
+  level: DEBUG
+
+api:
+  dashboard: true
+
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: secure
+          scheme: https
+
+  secure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: oukcorp.com
+          - sans:
+              - "*.oukcorp.com"
+
+
+serversTransport:
+  insecureSkipVerify: true
+
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: pizzatacoskebab@gmail.com
+      storage: /letsencrypt/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+

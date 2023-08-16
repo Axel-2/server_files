@@ -1,0 +1,53 @@
+
+# ALLOW FIRST AND DENY AT END
+
+# SI CA BEUG FAUT SUREMENT AJOUTER LES PORTS POUR TAILSCALE
+
+
+- name: Install UFW
+  apt:
+    name: ufw
+    state: present
+
+- name: Reset rules
+  ufw:
+    state: reset
+
+- name: Allow SSH connections
+  ufw:
+    rule: allow
+    port: 22
+    direction: "{{ item }}"
+  loop:
+    - in
+    - out
+
+- name: Allow necessary outgoing traffic
+  ufw:
+    rule: allow
+    direction: out
+    port: "{{ item }}"
+  loop:
+    - 53  # DNS
+    - 123  # NTP
+    - 80  # HTTP
+    - 443  # HTTPS
+    #- whois
+    #- 67  # DHCP client
+    #- 68  # DHCP client
+
+
+- name: Deny all outgoing and incoming traffic
+  ufw:
+    rule: deny
+    direction: "{{ item }}"
+  loop:
+    - in
+    - out
+
+- name: Enable ufw
+  ufw:
+    state: enabled
+
+
+

@@ -1,0 +1,12 @@
+- name: Third 
+  hosts: second
+  remote_user: root
+  become: no
+
+  pre_tasks:
+    - import_tasks: tasks/sync.yml
+
+  roles: 
+ #   - role: geerlingguy.docker    
+
+    

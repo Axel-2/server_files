@@ -1,0 +1,75 @@
+version: '3'
+
+volumes:
+  prometheus-data:
+    driver: local
+
+  grafana-data:
+    driver: local
+
+services:
+  prometheus:
+    user: "0"
+    image: prom/prometheus:latest
+    container_name: prometheus
+    #user: 1000:1000
+    #ports:
+    #  - "9095:9090"
+    volumes:
+      - ./config/:/etc/prometheus
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    #ports:
+    #  - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    user: "0"
+    #user: 1000:1000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.oukcorp.com`)"
+      - "traefik.http.routers.grafana.entrypoints=secure"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest    
+    container_name: cadvisor
+    #ports:
+    #  - "8081:8080"
+    # network_mode: host
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    restart: unless-stopped
+    privileged: true
+
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+
+
+networks:
+  default:
+    external:
+      name: traefik

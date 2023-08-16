@@ -1,0 +1,86 @@
+
+- name: Copier le fichier after.rules
+  copy:
+    src: ./after.rules
+    dest: /etc/ufw/after.rules
+    owner: root
+    group: root
+    mode: '0644'
+  register: file_copied
+
+- name: Reload UFW
+  when: file_copied.changed
+  command: ufw reload
+
+- name: Install pip
+  become: true
+  apt:
+    name: python3-pip
+    state: present
+
+
+- name: Install Docker package using pip
+  pip:
+    name: 
+      - docker-compose
+    state: present
+
+#- name: Uninstall requests
+#  pip:
+#    name: requests
+#    state: absent
+
+# https://github.com/docker/docker-py/issues/3113
+- name: Install requests version 2.28.1
+  pip:
+    name: requests==2.28.1
+    state: present
+
+- name: Copy docker-compose directory to home directory
+  copy:
+    src: ./docker-compose/homeserver/
+    dest: /home/oukerie/homeserver
+    remote_src: false
+
+
+- name: Create the data folder
+  file:
+    path: /home/oukerie/data
+    state: directory
+    mode: "0755"
+
+- name: Changer la propriété du dossier
+  become: true
+  file:
+    path: /home/oukerie/data
+    owner: oukerie
+    group: oukerie
+    recurse: yes
+
+- name: Changer la propriété du dossier
+  become: true
+  file:
+    path: /home/oukerie/homeserver/
+    owner: oukerie
+    group: oukerie
+    recurse: yes
+
+- name: Create Docker network
+  docker_network:
+    name: traefik
+
+- name: Find docker-compose files
+  find:
+    paths: /home/oukerie/homeserver/
+    file_type: file
+    recurse: true
+    patterns:
+      - 'docker-compose.yml'
+  register: compose_files
+
+- name: Launch docker-compose
+  docker_compose:
+    project_src: "{{ item.path | dirname }}"
+    project_name: "{{ item.path | basename }}"
+    state: present
+  with_items: "{{ compose_files.files }}"

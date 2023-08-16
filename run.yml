@@ -1,0 +1,14 @@
+- name: First installation
+  hosts: all
+  remote_user: oukerie
+  become: yes
+
+#  pre_tasks:
+#    - import_tasks: tasks/update.yml
+#    - import_tasks: tasks/essentials.yml
+#    - import_tasks: tasks/ufw.yml
+
+  roles: 
+    - role: geerlingguy.docker
+#    - role: geerlingguy.security
+    - role: artis3n.tailscale

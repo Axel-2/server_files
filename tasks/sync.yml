@@ -1,0 +1,9 @@
+- name: Synchronize docker-compose directory with home directory
+  synchronize:
+    src: ./docker-compose/homeserver/
+    dest: /home/oukerie/homeserver/
+    delete: true
+    recursive: true
+
+
+

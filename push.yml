@@ -1,0 +1,14 @@
+- name: Third 
+  hosts: all
+  become: no
+
+  tasks:
+
+    - name: Push backup directory
+      synchronize:
+        src: /Users/axel/Documents/ansibletest/backup/data/data/
+        dest: /home/oukerie/data/
+        delete: true
+        recursive: true
+        mode: push
+

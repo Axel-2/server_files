@@ -1,0 +1,159 @@
+version: "2.1"
+
+services:
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /home/oukerie/data/bazarr/config:/config
+      - /home/oukerie/oukflix_data/movies:/home/movies #optional
+      - /home/oukerie/oukflix_data/tv:/home/tv #optional
+    #ports:
+    #  - 6767:6767
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.rule=Host(`bz.oukcorp.com`)"
+      - "traefik.http.routers.bazarr.entrypoints=secure"
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - JELLYFIN_PublishedServerUrl=jl.oukcorp.com #optional
+    volumes:
+      - /home/oukerie/data/jellyfin/jellyfinlibrary:/config
+      - /home/oukerie/oukflix_data/tv:/data/tvshows
+      - /home/oukerie/oukflix_data/movies:/data/movies
+    #ports:
+      #- 8096:8096
+      #- 8920:8920 #optional
+      #- 7359:7359/udp #optional
+      #- 1900:1900/udp #optional
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jl.oukcorp.com`)"
+      - "traefik.http.routers.jellyfin.entrypoints=secure"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /home/oukerie/data/radarr/config:/config
+      - /home/oukerie/oukflix_data/movies:/home/movies #optional
+      - /home/oukerie/oukflix_data/downloads:/downloads #optional
+    #ports:
+    #  - 7878:7878
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.oukcorp.com`)"
+      - "traefik.http.routers.radarr.entrypoints=secure"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /home/oukerie/data/sonnar/data:/config
+      - /home/oukerie/oukflix_data/tv:/home/tv #optional
+      - /home/oukerie/oukflix_data/downloads:/downloads #optional
+    #ports:
+    #  - 8989:8989
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.oukcorp.com`)"
+      - "traefik.http.routers.sonarr.entrypoints=secure"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=8080
+    volumes:
+      - /home/oukerie/data/qbittorrent/config:/config
+      - /home/oukerie/oukflix_data/downloads:/downloads
+    ports:
+      #- 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qb.rule=Host(`qb.oukcorp.com`)"
+      - "traefik.http.routers.qb.entrypoints=secure"
+      - "traefik.http.services.qb.loadbalancer.server.port=8080"
+
+
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /home/oukerie/data/prowlarr/data:/config
+    #ports:
+    #  - 9696:9696
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.oukcorp.com`)"
+      - "traefik.http.routers.prowlarr.entrypoints=secure"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Europe/London
+    #ports:
+    #        - 5055:5055
+    volumes:
+      - /home/oukerie/data/jellyseer/config:/app/config
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jsr.rule=Host(`jsr.oukcorp.com`)"
+      - "traefik.http.routers.jsr.entrypoints=secure"
+      - "traefik.http.services.jsr.loadbalancer.server.port=5055"
+
+networks:
+  default:
+    external:
+      name: traefik

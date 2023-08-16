@@ -1,0 +1,13 @@
+- name: docker_init
+  hosts: second
+  remote_user: oukerie
+  become: yes
+
+  pre_tasks:
+    - import_tasks: tasks/docker_comp.yml
+
+
+  roles: 
+    
+
+    

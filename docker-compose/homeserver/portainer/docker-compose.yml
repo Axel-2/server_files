@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+  
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/oukerie/data/portainer_data:/data
+
+
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prs.rule=Host(`pr.oukcorp.com`)
+      - traefik.http.routers.prs.entrypoints=secure
+      - traefik.http.services.prs.loadbalancer.server.port=9000
+
+
+networks:
+  default:
+    external:
+      name: traefik

@@ -1,0 +1,15 @@
+- name: Third 
+  hosts: second
+  remote_user: root
+  become: no
+
+  tasks:
+
+    - name: Push backup directory
+      synchronize:
+        src: /Users/axel/Documents/ansibletest/backup/data/data/netdataconfig/
+        dest: /home/oukerie/data/netdataconfig/
+        delete: true
+        recursive: true
+        mode: push
+

@@ -1,0 +1,28 @@
+---
+version: "2.1"
+services:
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /home/oukerie/data/nextcloud/config:/config
+      - /home/oukerie/data/nextcloud/data:/data
+    #ports:
+    #  - 443:443
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.oukcorp.com`)"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=443"
+      - traefik.http.routers.nextcloud.tls=true
+      - traefik.http.services.nextcloud.loadbalancer.server.scheme=https
+
+
+networks:
+  default:
+    external:
+      name: traefik
