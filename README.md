@@ -67,8 +67,6 @@ sudo ufw reload
 
 
 
-# NET DATA
-ngrok http 19999 --oauth=google --oauth-allow-email=verga.axel10@gmail.com
 
 
 
